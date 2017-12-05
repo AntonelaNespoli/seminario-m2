@@ -60,12 +60,18 @@ class CustomerCredit
 
     public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
+        $maxGrandTotalCC = $this->_scopeConfig->getValue('payment/customer_credit/limit_cc');
         $isAvailable = parent::isAvailable($quote);
+        $grandTotal = $quote->getGrandTotal();
 
         //Si ya viene habilitado el método (verificando si está activo)
         if($isAvailable){
-            //Tomo el valor de si tiene habilitado el credito o no para saber si lo muestro
-            $isAvailable = (bool) $this->customerSession->getCustomer()->getData('enable_customer_credit');
+            if ($grandTotal<$maxGrandTotalCC){
+                //Tomo el valor de si tiene habilitado el credito o no para saber si lo muestro
+                $isAvailable = (bool) $this->customerSession->getCustomer()->getData('enable_customer_credit');
+            }else{
+                $isAvailable = false;
+            }
         }
 
         return $isAvailable;
